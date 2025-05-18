@@ -386,22 +386,61 @@ function archiveMessage(msgElement) {
     }
 
     // Extract actual message content
+    // Extract actual message content
     let messageText = '';
     if (msgContent.includes('You accepted the request')) {
         messageText = 'You accepted the request';
     } else {
-        // Try to get message content that isn't the name or handle
-        const contentLines = msgContent.split('\n');
-        if (contentLines.length > 1) {
-            messageText = contentLines
-                .slice(1)
-                .filter(line => !line.includes(username) && !line.includes(handle))
-                .join(' ')
-                .trim();
+        // Try to get message content using the provided selector
+        const messageElement = msgElement.querySelector('.css-175oi2r.r-yca7ao.r-1udh08x.r-22olma > div > span');
+        
+        if (messageElement) {
+            messageText = messageElement.textContent.trim();
+        } else {
+            // Fallback to text content approach
+            const contentLines = msgContent.split('\n');
+            if (contentLines.length > 1) {
+                messageText = contentLines.slice(1).join(' ').trim();
+            }
         }
-
+        
+        // Clean the message content thoroughly
+        if (messageText) {
+            // Remove the archive button emoji
+            messageText = messageText.replace(/📥/g, '');
+            
+            // Pattern to match date formats with or without bullet point
+            const datePattern = /(?:^|\s)[·•]?\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:,?\s+\d{4})?\s*/gi;
+            
+            // First try to remove the date format that appears after the username pattern
+            const usernameTimestampSeparatorIndex = messageText.indexOf(' · ');
+            if (usernameTimestampSeparatorIndex !== -1) {
+                // This looks like a header section, try to find the actual content after it
+                const potentialMessageStart = messageText.indexOf('\n');
+                if (potentialMessageStart !== -1) {
+                    messageText = messageText.substring(potentialMessageStart).trim();
+                }
+            }
+            
+            // Remove any remaining date patterns from the beginning
+            messageText = messageText.replace(datePattern, ' ');
+            
+            // Special case: handle "· May X" pattern that appears at start of content
+            messageText = messageText.replace(/^[·•]\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2}(?:,?\s+\d{4})?\s*/i, '');
+            
+            // Remove timestamps
+            messageText = messageText.replace(/[·•]\s*\d+[hmd]/g, '');
+            
+            // Clean up any remaining bullet points at the beginning
+            messageText = messageText.replace(/^[·•]\s*/, '');
+            
+            // Clean extra whitespace
+            messageText = messageText.replace(/\s+/g, ' ').trim();
+        }
+        
+        // Only use fallback if truly nothing was found
         if (!messageText) {
-            messageText = 'You accepted the request'; // Fallback or placeholder
+            messageText = 'No message content';
         }
     }
 
