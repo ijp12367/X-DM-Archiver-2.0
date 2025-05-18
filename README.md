@@ -2,7 +2,7 @@
 
 A Chrome extension that helps you organize and manage your Twitter/X Direct Messages by allowing you to archive conversations and easily restore them when needed.
 
-![Twitter DM Archive Extension](https://github.com/ijp12367/x-dm-archiver/blob/main/icons/icon128.png?raw=true)
+![Twitter DM Archive Extension](https://github.com/ijp12367/X-DM-Archiver-2.0/blob/main/icons/icon128.png?raw=true)
 
 ## Features
 
